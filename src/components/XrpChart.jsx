@@ -52,7 +52,7 @@ const XrpChart = ({
 
   return (
     <div
-      id="tradingview_xrp_chart"   // 👈 distinto al de BTC
+      id="tradingview_xrp_chart"   // Id xrp
       ref={containerRef}
       style={{
         width: "100%",

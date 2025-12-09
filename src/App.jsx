@@ -3,7 +3,7 @@ import BtcChart from "./components/BtcChart";
 
 function App() {
   return (
-    <div
+    <section
       style={{
         width: "100vw",
         height: "100vh",
@@ -22,7 +22,7 @@ function App() {
           theme="dark"
           interval="M"
           autosize={true}
-        />
+        />0
       </div>
 
       {/* Abajo: BTC/USD */}
@@ -34,7 +34,7 @@ function App() {
           autosize={true}
         />
       </div>
-    </div>
+    </section>
   );
 }
 
