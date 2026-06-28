@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 const XrpChart = ({
-  symbol = "BINANCE:XRPBTC",
+  symbol = "BINANCE:XRPUSD",
   theme = "dark",
   interval = "60",
   autosize = true,
