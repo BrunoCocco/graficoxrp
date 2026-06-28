@@ -18,7 +18,7 @@ function App() {
       {/* Arriba: XRP/BTC */}
       <div style={{ flex: 1 }}>
         <XrpChart
-          symbol="BINANCE:XRPBTC"
+          symbol="BINANCE:XRPUSD"
           theme="dark"
           interval="M"
           autosize={true}
