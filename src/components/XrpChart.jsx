@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 const XrpChart = ({
-  symbol = "BINANCE:XRPUSD",
+ symbol = "BINANCE:BTCUSD",
   theme = "dark",
   interval = "60",
   autosize = true,
@@ -52,11 +52,11 @@ const XrpChart = ({
 
   return (
     <div
-      id="tradingview_xrp_chart"   // Id xrp
+      id="tradingview_btc_chart"   // 👈 ID único
       ref={containerRef}
       style={{
         width: "100%",
-        height: "100%",
+        height: "100%",            // ocupa el 100% de su mitad
       }}
     />
   );
