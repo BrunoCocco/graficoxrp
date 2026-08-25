@@ -44,7 +44,7 @@ function App() {
 
         <XrpChart
           // Ahora sí mostramos XRP.
-          symbol="BINANCE:XRPUSD"
+          symbol="BINANCE:BTCUSD"
 
           theme="dark"
 
