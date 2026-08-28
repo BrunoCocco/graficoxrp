@@ -1,69 +1,44 @@
 import { useEffect, useRef } from "react";
 
 // ============================================================
-// XRP CHART
+// SOLANA CHART
 // ============================================================
 
-const XrpChart = ({
-  // CAMBIO:
-  // Ahora el valor por defecto realmente es XRP.
-  //
-  // Antes decía:
-  // symbol = "BINANCE:BTCUSD"
-  //
-  // aunque el componente se llamaba XrpChart.
-  symbol = "BINANCE:XRPUSD",
-
+const SolChart = ({
+  symbol = "BINANCE:SOLUSD",
   theme = "dark",
-
   interval = "M",
-
   autosize = true,
 }) => {
 
-  // Referencia al contenedor de ESTE gráfico.
+  // Referencia al contenedor de este gráfico
   const containerRef = useRef(null);
-
 
   useEffect(() => {
 
     // --------------------------------------------------------
-    // CREAR WIDGET XRP
+    // CREAR WIDGET SOLANA
     // --------------------------------------------------------
 
-    const createXrpWidget = () => {
+    const createSolWidget = () => {
 
-      // Si falta el contenedor o TradingView todavía no está
-      // disponible, salimos.
       if (!containerRef.current || !window.TradingView) {
         return;
       }
 
-
-      // Limpiamos el contenedor.
+      // Limpiamos el contenedor
       containerRef.current.innerHTML = "";
 
-
-      // Creamos el widget.
+      // Creamos el widget de TradingView
       new window.TradingView.widget({
 
-        // ----------------------------------------------------
-        // CAMBIO MUY IMPORTANTE:
-        //
-        // XRP tiene un ID DIFERENTE al de BTC.
-        //
-        // BTC:
-        // tradingview_btc_chart
-        //
-        // XRP:
-        // tradingview_xrp_chart
-        //
-        // TradingView necesita poder distinguirlos.
-        // ----------------------------------------------------
-        container_id: "tradingview_xrp_chart",
+        // ID exclusivo de SOLANA
+        container_id: "tradingview_sol_chart",
 
+        // Símbolo SOL
         symbol,
 
+        // Temporalidad
         interval,
 
         timezone: "Etc/UTC",
@@ -88,30 +63,19 @@ const XrpChart = ({
 
 
     // --------------------------------------------------------
-    // TRADINGVIEW YA EXISTE
+    // SI TRADINGVIEW YA ESTÁ CARGADO
     // --------------------------------------------------------
 
     if (window.TradingView) {
 
-      createXrpWidget();
+      createSolWidget();
 
       return;
     }
 
 
     // --------------------------------------------------------
-    // COMPROBAR SI EL SCRIPT YA FUE CREADO
-    // --------------------------------------------------------
-    //
-    // CAMBIO:
-    //
-    // Eliminamos completamente:
-    //
-    // const scriptLoadedRef = useRef(false);
-    //
-    // porque cada componente tenía su propia variable.
-    //
-    // Ahora buscamos el script directamente en el documento.
+    // COMPROBAR SI EL SCRIPT YA EXISTE
     // --------------------------------------------------------
 
     const existingScript = document.querySelector(
@@ -120,7 +84,7 @@ const XrpChart = ({
 
 
     // --------------------------------------------------------
-    // SI NO EXISTE EL SCRIPT
+    // SI NO EXISTE, LO CREAMOS
     // --------------------------------------------------------
 
     if (!existingScript) {
@@ -133,24 +97,16 @@ const XrpChart = ({
 
       script.async = true;
 
-
-      // Cuando termine de cargar TradingView,
-      // creamos el gráfico XRP.
       script.onload = () => {
-        createXrpWidget();
+        createSolWidget();
       };
 
-
       document.body.appendChild(script);
-
 
     } else {
 
       // ------------------------------------------------------
       // EL OTRO COMPONENTE YA ESTÁ CARGANDO TRADINGVIEW
-      // ------------------------------------------------------
-      //
-      // Esperamos hasta que window.TradingView esté disponible.
       // ------------------------------------------------------
 
       const checkTradingView = setInterval(() => {
@@ -159,13 +115,12 @@ const XrpChart = ({
 
           clearInterval(checkTradingView);
 
-          createXrpWidget();
+          createSolWidget();
         }
 
       }, 100);
 
 
-      // Limpiamos el intervalo si el componente desaparece.
       return () => {
         clearInterval(checkTradingView);
       };
@@ -175,13 +130,12 @@ const XrpChart = ({
 
 
   // ============================================================
-  // CONTENEDOR XRP
+  // CONTENEDOR SOLANA
   // ============================================================
 
   return (
     <div
-      // ID ÚNICO para XRP.
-      id="tradingview_xrp_chart"
+      id="tradingview_sol_chart"
 
       ref={containerRef}
 
@@ -193,5 +147,4 @@ const XrpChart = ({
   );
 };
 
-
-export default XrpChart;
+export default SolChart;

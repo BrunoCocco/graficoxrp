@@ -1,12 +1,10 @@
-import XrpChart from "./components/XrpChart";
 import BtcChart from "./components/BtcChart";
+import SolChart from "./components/SolChart";
 
 function App() {
-
   return (
     <section
       style={{
-        // Ocupa toda la pantalla.
         width: "100vw",
         height: "100vh",
 
@@ -14,78 +12,54 @@ function App() {
         padding: 0,
 
         background: "#fff",
-
         color: "#111",
 
-        // IMPORTANTE:
-        // Los gráficos se colocan uno debajo del otro.
         display: "flex",
         flexDirection: "column",
       }}
     >
 
       {/* =====================================================
-          GRÁFICO DE ARRIBA
+          GRÁFICO DE ARRIBA → BTC
           ===================================================== */}
 
       <div
         style={{
-          // CAMBIO:
-          // flex: 1 significa que este div ocupa la mitad
-          // disponible de la pantalla.
           flex: 1,
-
-          // Evita problemas de tamaño con elementos internos.
           minHeight: 0,
-
           width: "100%",
         }}
       >
-
-        <XrpChart
-          // Ahora sí mostramos XRP.
+        <BtcChart
           symbol="BINANCE:BTCUSD"
-
           theme="dark"
-
           interval="M"
-
           autosize={true}
         />
-
       </div>
 
 
       {/* =====================================================
-          GRÁFICO DE ABAJO
+          GRÁFICO DE ABAJO → SOLANA
           ===================================================== */}
 
       <div
         style={{
-          // La otra mitad de la pantalla.
           flex: 1,
-
           minHeight: 0,
-
           width: "100%",
         }}
       >
-
-        <BtcChart
-          symbol="BINANCE:BTCUSD"
-
+        <SolChart
+          symbol="BINANCE:SOLUSD"
           theme="dark"
-
           interval="M"
-
           autosize={true}
         />
-
       </div>
 
     </section>
   );
 }
-
 
 export default App;
