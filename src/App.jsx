@@ -1,14 +1,13 @@
 import "./App.css";
-import BtcChart from "./components/BtcChart";
 import MarketStrip from "./components/MarketStrip";
-import SolChart from "./components/SolChart";
+import TradingViewChart from "./components/TradingViewChart";
 
 function App() {
   return (
     <main className="market-screen">
       <div className="charts-stack">
       <section className="chart-panel" aria-label="Bitcoin mensual">
-        <BtcChart
+        <TradingViewChart
           containerId="tradingview_btc_monthly"
           symbol="BINANCE:BTCUSD"
           theme="dark"
@@ -18,7 +17,7 @@ function App() {
       </section>
 
       <section className="chart-panel" aria-label="Bitcoin diario">
-        <BtcChart
+        <TradingViewChart
           containerId="tradingview_btc_daily"
           symbol="BINANCE:BTCUSD"
           theme="dark"
@@ -28,7 +27,8 @@ function App() {
       </section>
 
       <section className="chart-panel" aria-label="Solana mensual">
-        <SolChart
+        <TradingViewChart
+          containerId="tradingview_sol_monthly"
           symbol="BINANCE:SOLUSD"
           theme="dark"
           interval="M"
