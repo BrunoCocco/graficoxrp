@@ -11,12 +11,14 @@
 .charts-stack { display: grid; min-height: 0; grid-template-rows: repeat(3, minmax(0, 1fr)); overflow: hidden; }
 .chart-panel { min-height: 0; width: 100%; overflow: hidden; background: #131722; }
 .chart-panel + .chart-panel { border-top: 1px solid #2a2e39; }
-.market-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.35rem; border-top: 1px solid #242b37; background: #07090d; padding: 0.45rem 1rem 0.5rem; }
-.market-quote { min-width: 0; border: 1px solid #242b37; border-radius: 0.4rem; background: linear-gradient(145deg, rgba(18, 23, 32, 0.98), rgba(11, 14, 20, 0.98)); padding: 0.45rem 0.5rem; }
+.tradingview-container { width: 100%; height: 100%; background: #131722; }
+.chart-error { display: grid; height: 100%; margin: 0; place-items: center; color: #fda4af; font-size: 0.8rem; }
+.market-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.25rem; border-top: 1px solid #242b37; background: #07090d; padding: 0.28rem 0.65rem 0.3rem; }
+.market-quote { min-width: 0; border: 1px solid #242b37; border-radius: 0.35rem; background: linear-gradient(145deg, rgba(18, 23, 32, 0.98), rgba(11, 14, 20, 0.98)); padding: 0.28rem 0.4rem; }
 .quote-heading, .quote-changes { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
-.quote-heading strong { color: #fff; font-size: 0.78rem; }
-.quote-heading span { overflow: hidden; color: #e4e4e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.72rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
-.quote-changes { margin-top: 0.28rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.68rem; }
+.quote-heading strong { color: #fff; font-size: 0.7rem; }
+.quote-heading span { overflow: hidden; color: #e4e4e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.66rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.quote-changes { margin-top: 0.16rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.62rem; }
 .positive { color: #6ee7b7; }
 .negative { color: #fda4af; }
 .unavailable { color: #71717a; }
