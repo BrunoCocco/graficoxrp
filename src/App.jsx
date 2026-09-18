@@ -1,27 +1,13 @@
+import "./App.css";
 import BtcChart from "./components/BtcChart";
+import MarketStrip from "./components/MarketStrip";
 import SolChart from "./components/SolChart";
-
-const chartPanelStyle = {
-  flex: 1,
-  minHeight: 0,
-  width: "100%",
-};
 
 function App() {
   return (
-    <main
-      style={{
-        width: "100vw",
-        height: "100dvh",
-        margin: 0,
-        padding: 0,
-        overflow: "hidden",
-        background: "#131722",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <section style={chartPanelStyle} aria-label="Bitcoin mensual">
+    <main className="market-screen">
+      <div className="charts-stack">
+      <section className="chart-panel" aria-label="Bitcoin mensual">
         <BtcChart
           containerId="tradingview_btc_monthly"
           symbol="BINANCE:BTCUSD"
@@ -31,7 +17,7 @@ function App() {
         />
       </section>
 
-      <section style={chartPanelStyle} aria-label="Bitcoin diario">
+      <section className="chart-panel" aria-label="Bitcoin diario">
         <BtcChart
           containerId="tradingview_btc_daily"
           symbol="BINANCE:BTCUSD"
@@ -41,7 +27,7 @@ function App() {
         />
       </section>
 
-      <section style={chartPanelStyle} aria-label="Solana mensual">
+      <section className="chart-panel" aria-label="Solana mensual">
         <SolChart
           symbol="BINANCE:SOLUSD"
           theme="dark"
@@ -49,6 +35,8 @@ function App() {
           autosize
         />
       </section>
+      </div>
+      <MarketStrip />
     </main>
   );
 }
