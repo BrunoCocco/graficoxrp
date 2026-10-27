@@ -20,7 +20,7 @@ function Change({ period, value }) {
   return <span aria-label={`${period}: ${text}`} className={className} title={period}>{text}</span>;
 }
 
-export default function MarketStrip() {
+export default function MarketStrip({ selected, onSelect }) {
   const [quotes, setQuotes] = useState(savedQuotes);
   const [stale, setStale] = useState(false);
 
@@ -52,10 +52,10 @@ export default function MarketStrip() {
   return (
     <footer className="market-strip" aria-label="Precios de activos seguidos">
       {display.map((quote) => (
-        <article className="market-quote" key={quote.symbol}>
+        <button type="button" className={`market-quote${selected === quote.symbol ? " selected" : ""}`} key={quote.symbol} onClick={() => onSelect(quote.symbol)} aria-pressed={selected === quote.symbol} aria-label={`Ver gráficos de ${quote.symbol}`}>
           <div className="quote-heading"><strong>{quote.symbol}</strong><span>{formatPrice(quote.price)}</span></div>
           <div className="quote-changes"><Change period="Variación diaria" value={quote.change24h} /><Change period="Variación anual" value={quote.change1y} /></div>
-        </article>
+        </button>
       ))}
       <span className="sr-only" aria-live="polite">{stale ? "Sin conexión: se conserva el último dato válido" : "Cotizaciones actualizadas"}</span>
     </footer>
