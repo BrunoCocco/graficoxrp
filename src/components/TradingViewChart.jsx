@@ -45,8 +45,9 @@ const TradingViewChart = memo(function TradingViewChart({ containerId, symbol, i
         hide_top_toolbar: false,
         allow_symbol_change: true,
         autosize,
-        studies: interval === "W" ? ["STD;VWAP", "STD;RSI"] : interval === "D" ? ["STD;RSI"] : ["STD;Bollinger_Bands"],
+        studies: interval === "W" ? ["STD;VWAP", "STD;RSI"] : interval === "D" ? ["STD;RSI", "MASimple@tv-basicstudies"] : ["STD;Bollinger_Bands"],
         studies_overrides: {
+          "moving average.length": 20,
           "vwap.anchor period": "Quarter",
           "vwap.source": "hl2",
           "vwap.vwap.color": "#ff9800",
