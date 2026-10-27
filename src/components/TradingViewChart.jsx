@@ -45,6 +45,21 @@ const TradingViewChart = memo(function TradingViewChart({ containerId, symbol, i
         hide_top_toolbar: false,
         allow_symbol_change: true,
         autosize,
+        studies: interval === "W" ? ["STD;VWAP", "STD;RSI"] : interval === "D" ? ["STD;RSI"] : ["STD;Bollinger_Bands"],
+        studies_overrides: {
+          "vwap.anchor period": "Month",
+          "vwap.source": "hl2",
+          "vwap.vwap.color": "#ff9800",
+          "vwap.vwap.linestyle": 0,
+          "relative strength index.middlelimit.color": "#ff69b4",
+          "relative strength index.middlelimit.value": 50,
+          "relative strength index.middlelimit.visible": true,
+          "relative strength index.upperlimit.visible": false,
+          "relative strength index.lowerlimit.visible": false,
+          "relative strength index.smoothing line": "EMA",
+          "relative strength index.smoothing length": 14,
+          "relative strength index.source": "hl2",
+        },
       });
     }).catch(() => active && setFailed(true));
     return () => { active = false; };
