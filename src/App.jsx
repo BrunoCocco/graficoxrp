@@ -1,44 +1,34 @@
+import { useState } from "react";
 import "./App.css";
 import MarketStrip from "./components/MarketStrip";
 import TradingViewChart from "./components/TradingViewChart";
 
+const SYMBOLS = { BTC: "BINANCE:BTCUSD", SOL: "BINANCE:SOLUSD", XRP: "KRAKEN:XRPUSD", HBAR: "KRAKEN:HBARUSD", XLM: "KRAKEN:XLMUSD", VELO: "KRAKEN:VELOUSD", SHX: "KRAKEN:SHXUSD" };
+const PERIODS = [{ interval: "W", label: "semanal" }, { interval: "D", label: "diario" }, { interval: "240", label: "4 horas" }];
+
 function App() {
+  const [selected, setSelected] = useState("BTC");
+  const [visited, setVisited] = useState(["BTC"]);
+  function selectAsset(asset) {
+    if (!SYMBOLS[asset]) return;
+    setVisited((current) => current.includes(asset) ? current : [...current, asset]);
+    setSelected(asset);
+  }
   return (
     <main className="market-screen">
-      <div className="charts-stack">
-        <section className="chart-panel" aria-label="Bitcoin mensual">
-          <TradingViewChart
-            containerId="tradingview_btc_monthly"
-            symbol="BINANCE:BTCUSD"
-            theme="dark"
-            interval="M"
-            autosize
-          />
-        </section>
-
-        <section className="chart-panel" aria-label="Bitcoin diario">
-          <TradingViewChart
-            containerId="tradingview_btc_daily"
-            symbol="BINANCE:BTCUSD"
-            theme="dark"
-            interval="D"
-            autosize
-          />
-        </section>
-
-        <section className="chart-panel" aria-label="Solana mensual">
-          <TradingViewChart
-            containerId="tradingview_sol_monthly"
-            symbol="BINANCE:SOLUSD"
-            theme="dark"
-            interval="M"
-            autosize
-          />
-        </section>
+      <div className="charts-area">
+        {visited.map((asset) => (
+          <div key={asset} className={`charts-stack${selected === asset ? " is-active" : ""}`} aria-hidden={selected !== asset} inert={selected !== asset}>
+            {PERIODS.map(({ interval, label }) => (
+              <section className="chart-panel" aria-label={`${asset} ${label}`} key={interval}>
+                <TradingViewChart containerId={`tradingview_${asset}_${interval}`} symbol={SYMBOLS[asset]} theme="dark" interval={interval} autosize />
+              </section>
+            ))}
+          </div>
+        ))}
       </div>
-      <MarketStrip />
+      <MarketStrip selected={selected} onSelect={selectAsset} />
     </main>
   );
 }
-
 export default App;
