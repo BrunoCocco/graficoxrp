@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { ASSETS } from "../lib/workspace";
 
-const COINS = { BTC: "bitcoin", SOL: "solana", XRP: "ripple", HBAR: "hedera-hashgraph", XLM: "stellar", VELO: "velo", SHX: "stronghold-token" };
+const COINS = Object.fromEntries(ASSETS.map(asset => [asset.id, asset.coinId]));
 const STORAGE_KEY = "graficoxrp-market-strip";
 const REFRESH_MS = 5 * 60 * 1000;
 
 function savedQuotes() {
-  try { return JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]"); }
+  try { return (() => { const value = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]"); return Array.isArray(value) ? value : []; })(); }
   catch { return []; }
 }
 
@@ -20,7 +21,7 @@ function Change({ period, value }) {
   return <span aria-label={`${period}: ${text}`} className={className} title={period}>{text}</span>;
 }
 
-export default function MarketStrip({ selected, onSelect }) {
+export default function MarketStrip({ assets, selected, onSelect }) {
   const [quotes, setQuotes] = useState(savedQuotes);
   const [stale, setStale] = useState(false);
 
@@ -50,8 +51,8 @@ export default function MarketStrip({ selected, onSelect }) {
 
   const display = quotes.length > 0 ? quotes : Object.keys(COINS).map((symbol) => ({ symbol, price: null, change24h: null, change1y: null }));
   return (
-    <footer className="market-strip" aria-label="Precios de activos seguidos">
-      {display.map((quote) => (
+    <footer className="market-strip" style={{ "--asset-count": assets.length }} aria-label="Precios de activos seguidos">
+      {assets.map(symbol => display.find(quote => quote.symbol === symbol) ?? { symbol, price: null, change24h: null, change1y: null }).map((quote) => (
         <button type="button" className={`market-quote${selected === quote.symbol ? " selected" : ""}`} key={quote.symbol} onClick={() => onSelect(quote.symbol)} aria-pressed={selected === quote.symbol} aria-label={`Ver gráficos de ${quote.symbol}`}>
           <div className="quote-heading"><strong>{quote.symbol}</strong><span>{formatPrice(quote.price)}</span></div>
           <div className="quote-changes"><Change period="Variación diaria" value={quote.change24h} /><Change period="Variación anual" value={quote.change1y} /></div>
