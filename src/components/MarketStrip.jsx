@@ -54,7 +54,7 @@ export default function MarketStrip({ assets, selected, onSelect }) {
     <footer className="market-strip" style={{ "--asset-count": assets.length }} aria-label="Precios de activos seguidos">
       {assets.map(symbol => display.find(quote => quote.symbol === symbol) ?? { symbol, price: null, change24h: null, change1y: null }).map((quote) => (
         <button type="button" className={`market-quote${selected === quote.symbol ? " selected" : ""}`} key={quote.symbol} onClick={() => onSelect(quote.symbol)} aria-pressed={selected === quote.symbol} aria-label={`Ver gráficos de ${quote.symbol}`} title={resolveAsset(quote.symbol)?.symbol}>
-          <div className="quote-heading"><strong title={resolveAsset(quote.symbol)?.symbol}>{resolveAsset(quote.symbol)?.name ?? quote.symbol}</strong><span>{formatPrice(quote.price)}</span></div>
+          <div className="quote-heading"><strong title={resolveAsset(quote.symbol)?.symbol}>{resolveAsset(quote.symbol)?.id.split(':').pop() ?? quote.symbol}</strong><span>{formatPrice(quote.price)}</span></div>
           <div className="quote-changes"><Change period="Variación diaria" value={quote.change24h} /><Change period="Variación anual" value={quote.change1y} /></div>
         </button>
       ))}
