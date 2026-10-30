@@ -7,6 +7,7 @@ import WorkspaceMenu from './components/WorkspaceMenu';
 import Login from './components/Login';
 import AssetPicker from './components/AssetPicker';
 import { auth } from './lib/auth';
+import { readJournal } from './lib/analyst-tools';
 import { MAX_ASSETS, resolveAsset, PERIODS, readWorkspace, writeWorkspace, exportWorkspace, validateWorkspace } from './lib/workspace';
 
 function Workspace({ user }) {
@@ -17,6 +18,66 @@ function Workspace({ user }) {
   const [focus, setFocus] = useState('all');
   const [message, setMessage] = useState('');
   const fileRef = useRef(null);
+  const [capturing, setCapturing] = useState(false);
+  function saveFile(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+  function filenameTag() {
+    return `${workspace.selected.replace(/[^a-zA-Z0-9_-]/g, '-')}-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+  }
+  async function capture() {
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      setMessage('Este navegador no permite capturar pestañas. Usá la captura del sistema y adjuntala en el chat.');
+      return;
+    }
+    setCapturing(true);
+    let stream;
+    let video;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 1 }, audio: false });
+      video = document.createElement('video');
+      video.muted = true;
+      video.srcObject = stream;
+      await video.play();
+      if (!video.videoWidth || !video.videoHeight) throw new Error('No se recibió una imagen válida.');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) throw new Error('No se pudo generar el PNG.');
+      saveFile(blob, `graficosxrp-${filenameTag()}.png`);
+      setMessage('Captura descargada. Comprobá que elegiste esta pestaña y que los dibujos son visibles antes de enviarla a Cloe.');
+    } catch (error) {
+      setMessage(error?.name === 'NotAllowedError' ? 'Captura cancelada o permiso rechazado; no se guardó ninguna imagen.' : 'No se pudo capturar la pestaña. Probá con la captura del sistema.');
+    } finally {
+      stream?.getTracks().forEach(track => track.stop());
+      if (video) video.srcObject = null;
+      setCapturing(false);
+    }
+  }
+  function exportEvidence() {
+    try {
+      const asset = resolveAsset(workspace.selected);
+      const cuts = readJournal(window.localStorage, user.id, asset.symbol);
+      const evidence = {
+        version: 1, application: 'graficosxrp', type: 'analysis-evidence',
+        exportedAt: new Date().toISOString(),
+        asset: { id: asset.id, symbol: asset.symbol },
+        periods: PERIODS.map(period => period.interval),
+        visiblePeriods: focus === 'all' ? PERIODS.map(period => period.interval) : [focus],
+        journal: cuts,
+        screenshot: null,
+        limitations: 'Los dibujos y las velas de TradingView no están disponibles mediante el widget. Adjuntar captura PNG separada, tomada y revisada por el usuario. No contiene precios OHLCV.'
+      };
+      saveFile(new Blob([JSON.stringify(evidence, null, 2)], { type: 'application/json' }), `graficosxrp-evidencia-${filenameTag()}.json`);
+      setMessage('Evidencia JSON descargada. Adjuntá también el PNG para que Cloe pueda evaluar los dibujos.');
+    } catch {
+      setMessage('No se pudo exportar la evidencia; los registros originales no se modificaron.');
+    }
+  }
   function apply(next) {
     const value = validateWorkspace(next);
     try { writeWorkspace(window.localStorage, user.id, value); setMessage('Configuración guardada en este navegador.'); }
@@ -53,7 +114,7 @@ function Workspace({ user }) {
       const active = workspace.selected === id;
       return <div key={id} className={`charts-stack${focus !== 'all' ? ' single-chart' : ''}${active ? ' is-active' : ''}`} aria-hidden={!active} inert={!active}>{PERIODS.map(({ interval, label }) => <section className={`chart-panel${focus !== 'all' && focus !== interval ? ' focus-hidden' : ''}`} aria-label={`${id} ${label}`} key={interval}><TradingViewChart containerId={`tradingview_${index}_${interval}`} symbol={asset.symbol} theme="dark" interval={interval} autosize /></section>)}</div>;
     })}</div>
-    <MarketStrip assets={workspace.assets} selected={workspace.selected} onSelect={selectAsset} menu={<WorkspaceMenu email={user.email} onAssets={() => setEditing(true)} onExport={download} onImport={() => fileRef.current?.click()} onLogout={logout} onTools={() => setTools(true)} focus={focus} onFocus={setFocus} />} />
+    <MarketStrip assets={workspace.assets} selected={workspace.selected} onSelect={selectAsset} menu={<WorkspaceMenu email={user.email} onAssets={() => setEditing(true)} onExport={download} onImport={() => fileRef.current?.click()} onLogout={logout} onTools={() => setTools(true)} onCapture={capture} onEvidence={exportEvidence} busy={capturing} focus={focus} onFocus={setFocus} />} />
     {tools && <AnalystTools key={workspace.selected} userId={user.id} symbol={resolveAsset(workspace.selected).symbol} onClose={() => setTools(false)} />}
     {editing && <AssetPicker initial={workspace.assets} onCancel={() => setEditing(false)} onApply={assets => apply({ version: 1, assets, selected: assets.includes(workspace.selected) ? workspace.selected : assets[0] })} />}
     <p className="workspace-message" role="status">{message}</p>
