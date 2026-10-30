@@ -12,7 +12,7 @@ function savedQuotes() {
 
 function formatPrice(value) {
   if (typeof value !== "number") return "—";
-  return new Intl.NumberFormat("es-ES", { minimumFractionDigits: 4, maximumFractionDigits: 4 }).format(value);
+  return new Intl.NumberFormat("es-ES", { minimumFractionDigits: value > 1 ? 2 : 0, maximumFractionDigits: value > 1 ? 2 : 4 }).format(value);
 }
 
 function Change({ period, value }) {
