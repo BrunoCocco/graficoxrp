@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validateWorkspace, readWorkspace, writeWorkspace, exportWorkspace, ASSETS, PERIODS } from '../src/lib/workspace.js';
+import { validateWorkspace, readWorkspace, writeWorkspace, exportWorkspace, ASSETS, PERIODS, searchAssets } from '../src/lib/workspace.js';
 const sample = { version: 1, assets: ['BTC', 'XRP'], selected: 'XRP' };
 test('export/import round trip preserves assets and selection, without identity or credentials', () => {
   const json = exportWorkspace(sample);
@@ -26,4 +26,23 @@ test('validation copies only supported fields and does not mutate source', () =>
 test('catalog symbols are distinct and original three intervals retained', () => {
   assert.equal(new Set(ASSETS.map(asset => asset.id)).size, ASSETS.length);
   assert.deepEqual(PERIODS.map(period => period.interval), ['W', 'D', '240']);
+});
+test('hard limit of seven applies to imports while legacy storage stays readable', () => {
+  const old = { version: 1, assets: ASSETS.slice(0, 8).map(a => a.id), selected: 'BTC' };
+  assert.throws(() => validateWorkspace(old));
+  const storage = { getItem: () => JSON.stringify(old) };
+  assert.equal(readWorkspace(storage, 'old-owner').assets.length, 8);
+  assert.doesNotThrow(() => validateWorkspace({ ...old, assets: old.assets.slice(0, 7) }));
+});
+test('exact symbols can be exported; aliases, bad formats and injections are rejected', () => {
+  const config = { version: 1, assets: ['NASDAQ:AAPL', 'BTC'], selected: 'NASDAQ:AAPL' };
+  assert.deepEqual(validateWorkspace(JSON.parse(exportWorkspace(config))), config);
+  for (const id of ['<script>', 'NASDAQ:', 'https://example.com', 'nasdaq:aapl', 'A'.repeat(100)]) assert.throws(() => validateWorkspace({ version: 1, assets: [id], selected: id }));
+  assert.throws(() => validateWorkspace({ version: 1, assets: ['BTC', 'BINANCE:BTCUSD'], selected: 'BTC' }));
+});
+
+test('search works by name, ticker, exchange and multiple terms', () => {
+  assert.equal(searchAssets('bitcoin')[0].id, 'BTC');
+  assert.equal(searchAssets(' KRAKEN xrp ')[0].id, 'XRP');
+  assert.equal(searchAssets('no-such-symbol').length, 0);
 });
