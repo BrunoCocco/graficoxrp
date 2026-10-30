@@ -27,12 +27,12 @@ test('catalog symbols are distinct and original three intervals retained', () =>
   assert.equal(new Set(ASSETS.map(asset => asset.id)).size, ASSETS.length);
   assert.deepEqual(PERIODS.map(period => period.interval), ['W', 'D', '240']);
 });
-test('hard limit of seven applies to imports while legacy storage stays readable', () => {
+test('hard limit of six applies to imports while legacy storage stays readable', () => {
   const old = { version: 1, assets: ASSETS.slice(0, 8).map(a => a.id), selected: 'BTC' };
   assert.throws(() => validateWorkspace(old));
   const storage = { getItem: () => JSON.stringify(old) };
   assert.equal(readWorkspace(storage, 'old-owner').assets.length, 8);
-  assert.doesNotThrow(() => validateWorkspace({ ...old, assets: old.assets.slice(0, 7) }));
+  assert.doesNotThrow(() => validateWorkspace({ ...old, assets: old.assets.slice(0, 6) }));
 });
 test('exact symbols can be exported; aliases, bad formats and injections are rejected', () => {
   const config = { version: 1, assets: ['NASDAQ:AAPL', 'BTC'], selected: 'NASDAQ:AAPL' };

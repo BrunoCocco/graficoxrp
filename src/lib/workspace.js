@@ -12,7 +12,7 @@ export const ASSETS = [
   ['LINK', 'Chainlink', 'BINANCE:LINKUSDT', 'chainlink'],
   ['DOGE', 'Dogecoin', 'BINANCE:DOGEUSDT', 'dogecoin'],
 ].map(([id, name, symbol, coinId]) => ({ id, name, symbol, coinId }));
-export const MAX_ASSETS = 7;
+export const MAX_ASSETS = 6;
 const SYMBOL_PATTERN = /^[A-Z0-9_]{1,24}:[A-Z0-9_.!/-]{1,48}$/;
 export function resolveAsset(id) {
   if (typeof id !== 'string') return null;
@@ -27,7 +27,7 @@ export function searchAssets(query) {
 }
 export const PERIODS = [{ interval: 'W', label: 'semanal' }, { interval: 'D', label: 'diario' }, { interval: '240', label: '4 horas' }];
 export function validateWorkspace(input, { allowLegacy = false } = {}) {
-  if (input?.version !== 1 || !Array.isArray(input.assets) || input.assets.length < 1 || input.assets.length > (allowLegacy ? 12 : MAX_ASSETS)) throw new Error('Elegí entre 1 y 7 activos.');
+  if (input?.version !== 1 || !Array.isArray(input.assets) || input.assets.length < 1 || input.assets.length > (allowLegacy ? 12 : MAX_ASSETS)) throw new Error('Elegí entre 1 y 6 activos.');
   if (input.assets.some(id => !resolveAsset(id)) || new Set(input.assets.map(id => resolveAsset(id).symbol)).size !== input.assets.length) throw new Error('La configuración contiene activos inválidos o repetidos.');
   if (!input.assets.includes(input.selected)) throw new Error('El activo seleccionado debe pertenecer al espacio.');
   return { version: 1, assets: [...input.assets], selected: input.selected };

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import MarketStrip from './components/MarketStrip';
 import TradingViewChart from './components/TradingViewChart';
+import AnalystTools from './components/AnalystTools';
+import WorkspaceMenu from './components/WorkspaceMenu';
 import Login from './components/Login';
 import AssetPicker from './components/AssetPicker';
 import { auth } from './lib/auth';
@@ -11,6 +13,8 @@ function Workspace({ user }) {
   const [workspace, setWorkspace] = useState(() => readWorkspace(window.localStorage, user.id));
   const [visited, setVisited] = useState(() => workspace ? [workspace.selected] : []);
   const [editing, setEditing] = useState(false);
+  const [tools, setTools] = useState(false);
+  const [focus, setFocus] = useState('all');
   const [message, setMessage] = useState('');
   const fileRef = useRef(null);
   function apply(next) {
@@ -43,13 +47,14 @@ function Workspace({ user }) {
   }
   if (!workspace || workspace.assets.length > MAX_ASSETS) return <><AssetPicker initial={workspace?.assets ?? []} onApply={assets => apply({ version: 1, assets, selected: assets[0] })} /><button className="onboarding-logout" onClick={logout}>Cerrar sesión</button></>;
   return <main className="market-screen product-screen">
-    <header className="workspace-toolbar"><strong>GRÁFICOS XRP</strong><span className="account-name">{user.email}</span><nav aria-label="Configuración del espacio"><button onClick={() => setEditing(true)}>Activos</button><button onClick={download}>Exportar</button><button onClick={() => fileRef.current?.click()}>Importar</button><button onClick={logout}>Salir</button></nav><input ref={fileRef} hidden type="file" accept="application/json,.json" onChange={upload} /></header>
+    <input ref={fileRef} hidden type="file" accept="application/json,.json" onChange={upload} />
     <div className="charts-area">{visited.map((id, index) => {
       const asset = resolveAsset(id);
       const active = workspace.selected === id;
-      return <div key={id} className={`charts-stack${active ? ' is-active' : ''}`} aria-hidden={!active} inert={!active}>{PERIODS.map(({ interval, label }) => <section className="chart-panel" aria-label={`${id} ${label}`} key={interval}><TradingViewChart containerId={`tradingview_${index}_${interval}`} symbol={asset.symbol} theme="dark" interval={interval} autosize /></section>)}</div>;
+      return <div key={id} className={`charts-stack${focus !== 'all' ? ' single-chart' : ''}${active ? ' is-active' : ''}`} aria-hidden={!active} inert={!active}>{PERIODS.map(({ interval, label }) => <section className={`chart-panel${focus !== 'all' && focus !== interval ? ' focus-hidden' : ''}`} aria-label={`${id} ${label}`} key={interval}><TradingViewChart containerId={`tradingview_${index}_${interval}`} symbol={asset.symbol} theme="dark" interval={interval} autosize /></section>)}</div>;
     })}</div>
-    <MarketStrip assets={workspace.assets} selected={workspace.selected} onSelect={selectAsset} />
+    <MarketStrip assets={workspace.assets} selected={workspace.selected} onSelect={selectAsset} menu={<WorkspaceMenu email={user.email} onAssets={() => setEditing(true)} onExport={download} onImport={() => fileRef.current?.click()} onLogout={logout} onTools={() => setTools(true)} focus={focus} onFocus={setFocus} />} />
+    {tools && <AnalystTools key={workspace.selected} userId={user.id} symbol={resolveAsset(workspace.selected).symbol} onClose={() => setTools(false)} />}
     {editing && <AssetPicker initial={workspace.assets} onCancel={() => setEditing(false)} onApply={assets => apply({ version: 1, assets, selected: assets.includes(workspace.selected) ? workspace.selected : assets[0] })} />}
     <p className="workspace-message" role="status">{message}</p>
   </main>;

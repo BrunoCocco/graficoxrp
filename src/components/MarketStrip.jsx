@@ -21,7 +21,7 @@ function Change({ period, value }) {
   return <span aria-label={`${period}: ${text}`} className={className} title={period}>{text}</span>;
 }
 
-export default function MarketStrip({ assets, selected, onSelect }) {
+export default function MarketStrip({ assets, selected, onSelect, menu }) {
   const [quotes, setQuotes] = useState(savedQuotes);
   const [stale, setStale] = useState(false);
 
@@ -52,12 +52,14 @@ export default function MarketStrip({ assets, selected, onSelect }) {
   const display = quotes.length > 0 ? quotes : Object.keys(COINS).map((symbol) => ({ symbol, price: null, change24h: null, change1y: null }));
   return (
     <footer className="market-strip" style={{ "--asset-count": assets.length }} aria-label="Precios de activos seguidos">
-      {assets.map(symbol => display.find(quote => quote.symbol === symbol) ?? { symbol, price: null, change24h: null, change1y: null }).map((quote) => (
+      <div className="asset-quotes">{assets.map(symbol => display.find(quote => quote.symbol === symbol) ?? { symbol, price: null, change24h: null, change1y: null }).map((quote) => (
         <button type="button" className={`market-quote${selected === quote.symbol ? " selected" : ""}`} key={quote.symbol} onClick={() => onSelect(quote.symbol)} aria-pressed={selected === quote.symbol} aria-label={`Ver gráficos de ${quote.symbol}`} title={resolveAsset(quote.symbol)?.symbol}>
           <div className="quote-heading"><strong title={resolveAsset(quote.symbol)?.symbol}>{resolveAsset(quote.symbol)?.id.split(':').pop() ?? quote.symbol}</strong><span>{formatPrice(quote.price)}</span></div>
           <div className="quote-changes"><Change period="Variación diaria" value={quote.change24h} /><Change period="Variación anual" value={quote.change1y} /></div>
         </button>
       ))}
+      {Array.from({ length: Math.max(0, 6 - assets.length) }, (_, index) => <div key={`empty-${index}`} className="empty-quote" aria-hidden="true" />)}</div>
+      {menu}
       <span className="sr-only" aria-live="polite">{stale ? "Sin conexión: se conserva el último dato válido" : "Cotizaciones actualizadas"}</span>
     </footer>
   );

@@ -11,16 +11,16 @@ export default function AssetPicker({ initial = [], onApply, onCancel }) {
     const asset = resolveAsset(id);
     if (!asset) { setMessage('Usá el formato MERCADO:SÍMBOLO, por ejemplo NASDAQ:AAPL.'); return; }
     if (chosen.some(value => resolveAsset(value).symbol === asset.symbol)) { setMessage('Ese símbolo ya está en tu selección.'); return; }
-    if (chosen.length >= MAX_ASSETS) { setMessage('Llegaste al máximo de 7. Quitá uno para agregar otro.'); return; }
+    if (chosen.length >= MAX_ASSETS) { setMessage('Llegaste al máximo de 6. Quitá uno para agregar otro.'); return; }
     setChosen(current => [...current, asset.id]); setMessage(`${asset.symbol} agregado.`); setCustom('');
   }
   const results = searchAssets(query);
   return <dialog ref={dialog} className="product-card asset-picker search-picker" aria-labelledby="picker-title" onCancel={event => { event.preventDefault(); onCancel?.(); }}>
-    <span className="eyebrow">TU ESPACIO · MÁXIMO 7 ACTIVOS</span><h1 id="picker-title">Armá tu pantalla.</h1>
+    <span className="eyebrow">TU ESPACIO · MÁXIMO 6 ACTIVOS</span><h1 id="picker-title">Armá tu pantalla.</h1>
     <p>Buscá por nombre, ticker o mercado. Cada activo abre sus gráficos semanal, diario y de 4 horas.</p>
     <section className="chosen-section" aria-label="Activos seleccionados"><div className="selection-heading"><strong>Tu selección</strong><span aria-live="polite">{chosen.length} / {MAX_ASSETS}</span></div>
       {chosen.length ? <ul className="chosen-list">{chosen.map(id => { const asset = resolveAsset(id); return <li key={id}><span><strong>{asset.name}</strong><small>{asset.symbol}{asset.custom ? ' · sin verificar' : ''}</small></span><button type="button" aria-label={`Quitar ${asset.symbol}`} onClick={() => { setChosen(current => current.filter(value => value !== id)); setMessage(''); }}>×</button></li>; })}</ul> : <p className="empty-selection">Agregá tu primer activo desde el buscador.</p>}
-      {chosen.length > MAX_ASSETS && <p role="alert">Tu espacio anterior tenía más de 7 activos. Elegí cuáles conservar para continuar.</p>}
+      {chosen.length > MAX_ASSETS && <p role="alert">Tu espacio anterior tenía más de 6 activos. Elegí cuáles conservar para continuar.</p>}
     </section>
     <label className="search-label">Buscar activos<input autoFocus type="search" placeholder="Bitcoin, XRP, Solana, KRAKEN…" value={query} onChange={event => setQuery(event.target.value)} /></label>
     <p className="catalog-caption">Catálogo inicial · {results.length} resultados · No es el catálogo completo de TradingView.</p>

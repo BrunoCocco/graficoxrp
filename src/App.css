@@ -102,3 +102,47 @@ dialog.asset-picker::backdrop { background:#07090df2; }
 .product-card .selection-message { min-height:1.2em; font-size:.75rem; color:#b5d6ff; }
 .market-quote .quote-heading strong { max-width:55%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.85rem; }
 @media(max-width:480px) { .product-card .custom-symbol form { grid-template-columns:1fr; } .symbol-results { max-height:230px; } .chosen-section { padding:.7rem; } }
+/* Six assets and a permanent seventh menu slot. */
+.product-screen { grid-template-rows:minmax(0,1fr) auto; }
+.market-strip { display:grid; grid-template-columns:minmax(0,1fr) minmax(100px,1fr); gap:.5rem; max-height:none; overflow:visible; }
+@media(min-width:761px) { .market-strip { grid-template-columns:minmax(0,6fr) minmax(100px,1fr); } }
+.asset-quotes { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:.5rem; min-width:0; }
+.empty-quote { border:1px dashed #232f40; border-radius:8px; opacity:.5; }
+.workspace-menu-slot { min-width:0; display:flex; }
+.workspace-menu-trigger { width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; border-color:#55729a; background:linear-gradient(145deg,#213a5b,#132237); }
+.workspace-menu-trigger strong { font-size:.95rem; }
+.workspace-menu-trigger span { font-size:.65rem; color:#adc8eb; }
+.workspace-popover { position:fixed; inset:auto 1rem 115px auto; margin:0; width:min(350px,calc(100vw - 24px)); max-height:calc(100dvh - 145px); overflow:auto; border:1px solid #466181; border-radius:14px; padding:.8rem; background:#101b2bef; color:#e7f0fd; box-shadow:0 -14px 70px #0009; backdrop-filter:blur(18px); }
+.workspace-popover::backdrop { background:transparent; }
+.menu-identity { display:grid; gap:.35rem; padding:.4rem .5rem .8rem; border-bottom:1px solid #2e415a; }
+.menu-identity strong { font-size:.75rem; letter-spacing:.09em; }
+.menu-identity small { color:#9db2cc; overflow-wrap:anywhere; }
+.menu-section-label { font-size:.62rem; letter-spacing:.12em; color:#8ba5c5; margin:1rem .5rem .4rem; }
+.workspace-popover > button { display:flex; flex-direction:column; gap:.2rem; width:100%; background:transparent; color:inherit; border:0; border-radius:7px; padding:.65rem .5rem; text-align:left; cursor:pointer; font-size:.85rem; }
+.workspace-popover > button:hover { background:#223b58; }
+.workspace-popover button small { font-size:.68rem; color:#96aecb; }
+.focus-options { display:flex; flex-wrap:wrap; gap:.35rem; margin:.5rem; }
+.focus-options > span { width:100%; font-size:.8rem; margin:.4rem 0; }
+.focus-options button { border:1px solid #3b5676; border-radius:5px; padding:.4rem; color:#b4c8e2; background:#142438; cursor:pointer; font-size:.68rem; }
+.focus-options button[aria-pressed=true] { background:#2a537b; color:white; border-color:#90c3ff; }
+.menu-hint { margin:.8rem .5rem; font-size:.68rem; color:#9db2cc; line-height:1.5; }
+.workspace-popover .logout-option { border-top:1px solid #2e415a; border-radius:0; }
+.charts-stack.single-chart { grid-template-rows:minmax(0,1fr); }
+.chart-panel.focus-hidden { position:absolute; width:100%; height:100%; visibility:hidden; pointer-events:none; }
+.analyst-dialog { width:min(720px,calc(100% - 24px)); max-height:92dvh; overflow:auto; color:#e7f0fd; }
+.analyst-dialog::backdrop { background:#030710c9; }
+.tool-heading { display:flex; justify-content:space-between; align-items:center; }
+.analyst-dialog > label { display:grid; gap:.5rem; font-size:.85rem; margin:1rem 0; }
+.analyst-dialog textarea { min-height:85px; resize:vertical; border:1px solid #3a4960; border-radius:7px; background:#080e17; color:white; padding:.8rem; font:inherit; }
+.analyst-checks { border:1px solid #354a66; border-radius:8px; padding:1rem; }
+.analyst-checks legend { font-size:.78rem; color:#a7c4e7; }
+.analyst-checks label { display:flex; gap:.6rem; align-items:center; margin:.6rem 0; font-size:.8rem; }
+.analyst-dialog details { margin-top:1rem; border-top:1px solid #2d3c51; padding-top:1rem; }
+.analyst-dialog summary { cursor:pointer; font-size:.85rem; }
+.journal-cut { background:#142237; padding:.8rem; margin-top:.7rem; border-radius:8px; overflow-wrap:anywhere; }
+.journal-cut time, .journal-cut small { font-size:.7rem; color:#9db2cc; }
+.journal-cut p { white-space:pre-wrap; font-size:.8rem; }
+.risk-inputs { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin:1rem 0; }
+.risk-inputs label { display:grid; gap:.4rem; font-size:.75rem; }
+.risk-output { display:block; padding:1rem; background:#17384a; border-radius:8px; font-size:.8rem; line-height:1.8; }
+@media(max-width:760px) { .market-strip { grid-template-columns:minmax(0,1fr) 90px; padding:.6rem; } .asset-quotes { display:flex; overflow-x:auto; } .asset-quotes .market-quote { min-width:140px; } .empty-quote { display:none; } .workspace-popover { bottom:110px; right:.6rem; } .risk-inputs { grid-template-columns:1fr; } }
