@@ -68,3 +68,13 @@ Funciones adicionales:
 Las notas son locales a navegador/origen, no sincronizadas con Supabase. El borrador sin guardar se pierde al cerrar el cuaderno; el botón Guardar corte persiste el registro. Las modificaciones internas de TradingView no forman parte del cuaderno.
 
 Validación: 10 pruebas de modelo, validación, riesgo e historial; lint y build correctos. Chromium con Auth y widgets simulados: límite de seis, séptimo menú por encima del pie, Escape, concentración sin recrear widgets, guardado/reapertura/exportación del cuaderno, cálculo, configuración exportada, cierre de sesión y presentación móvil. No equivale a una prueba de cuenta real ni de dibujos en TradingView.
+
+## Captura y paquete de evidencia · cuarta entrega
+
+- El menú inferior ahora agrupa **Captura y evidencia**, **Análisis** y **Espacio de trabajo**. No se eliminaron los accesos anteriores.
+- **Capturar gráficos** invoca `getDisplayMedia` desde la interacción del usuario. Se debe elegir explícitamente la pestaña de Gráficos XRP en el selector del navegador. Se toma un único fotograma y se descarga como PNG; las pistas se cierran inmediatamente después. Si el navegador no admite la API, se indica usar la captura del sistema.
+- **Exportar evidencia** descarga un JSON con activo, símbolos, marcos temporales, fecha de exportación y cortes históricos del cuaderno almacenados localmente. No altera ni elimina registros. La captura se adjunta por separado para evitar afirmar que el JSON contiene dibujos.
+- No hay reconocimiento de imagen automático, acceso a los dibujos internos del widget ni envío directo a ChatGPT. Para revisar anotaciones con Cloe, adjuntar voluntariamente el PNG en la conversación.
+- Precisión: los datos OHLCV, las coordenadas exactas de dibujos y los indicadores dentro del iframe **no** se obtienen de la captura; una lectura visual solo permite estimaciones.
+- Privacidad: la captura se solicita con permiso explícito, se guarda localmente y no se sube a servidor por estas funciones. El usuario debe revisar qué pestaña eligió y si contiene datos sensibles.
+- **Pruebas pendientes:** validar en navegador real la selección de pestaña, el contenido del PNG y las restricciones de móvil, HTTPS y permisos; no se afirma compatibilidad universal ni verificación de los dibujos.
