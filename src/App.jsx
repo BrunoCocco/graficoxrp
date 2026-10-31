@@ -8,6 +8,9 @@ import Login from './components/Login';
 import AssetPicker from './components/AssetPicker';
 import { auth } from './lib/auth';
 import { readJournal } from './lib/analyst-tools';
+import { buildEvidence } from './lib/evidence';
+import { capturePng } from './lib/capture';
+import { buildEvidenceZip } from './lib/evidence-zip';
 import { MAX_ASSETS, resolveAsset, PERIODS, readWorkspace, writeWorkspace, exportWorkspace, validateWorkspace } from './lib/workspace';
 
 function Workspace({ user }) {
@@ -19,6 +22,8 @@ function Workspace({ user }) {
   const [message, setMessage] = useState('');
   const fileRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const busy = capturing || exporting;
   function saveFile(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -28,54 +33,70 @@ function Workspace({ user }) {
   function filenameTag() {
     return `${workspace.selected.replace(/[^a-zA-Z0-9_-]/g, '-')}-${new Date().toISOString().replace(/[:.]/g, '-')}`;
   }
+  function exportInput() {
+    const asset = resolveAsset(workspace.selected);
+    return {
+      asset: { id: asset.id, symbol: asset.symbol },
+      periods: PERIODS,
+      focus,
+      journal: readJournal(window.localStorage, user.id, asset.symbol),
+    };
+  }
+  function exportSummary(evidence) {
+    const available = evidence.marketData.filter(series => series.status === 'available').length;
+    return `Velas disponibles: ${available}/${evidence.periods.length} temporalidades iniciales. ${available < evidence.periods.length ? 'El JSON detalla las consultas no disponibles.' : ''}`;
+  }
+  function captureError(error) {
+    return error?.name === 'NotAllowedError'
+      ? 'Captura cancelada o permiso rechazado; no se guardó ningún archivo. Podés exportar el JSON por separado.'
+      : error?.message || 'No se pudo capturar la pestaña. Probá con la captura del sistema.';
+  }
   async function capture() {
-    if (!navigator.mediaDevices?.getDisplayMedia) {
-      setMessage('Este navegador no permite capturar pestañas. Usá la captura del sistema y adjuntala en el chat.');
-      return;
-    }
+    if (busy) return;
     setCapturing(true);
-    let stream;
-    let video;
     try {
-      stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 1 }, audio: false });
-      video = document.createElement('video');
-      video.muted = true;
-      video.srcObject = stream;
-      await video.play();
-      if (!video.videoWidth || !video.videoHeight) throw new Error('No se recibió una imagen válida.');
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      if (!blob) throw new Error('No se pudo generar el PNG.');
-      saveFile(blob, `graficosxrp-${filenameTag()}.png`);
+      const tag = filenameTag();
+      const { blob } = await capturePng();
+      saveFile(blob, `graficosxrp-${tag}.png`);
       setMessage('Captura descargada. Comprobá que elegiste esta pestaña y que los dibujos son visibles antes de enviarla a Cloe.');
     } catch (error) {
-      setMessage(error?.name === 'NotAllowedError' ? 'Captura cancelada o permiso rechazado; no se guardó ninguna imagen.' : 'No se pudo capturar la pestaña. Probá con la captura del sistema.');
+      setMessage(captureError(error));
     } finally {
-      stream?.getTracks().forEach(track => track.stop());
-      if (video) video.srcObject = null;
       setCapturing(false);
     }
   }
-  function exportEvidence() {
+  async function exportEvidence() {
+    if (busy) return;
+    setExporting(true);
+    setMessage('Consultando velas de la configuración inicial…');
     try {
-      const asset = resolveAsset(workspace.selected);
-      const cuts = readJournal(window.localStorage, user.id, asset.symbol);
-      const evidence = {
-        version: 1, application: 'graficosxrp', type: 'analysis-evidence',
-        exportedAt: new Date().toISOString(),
-        asset: { id: asset.id, symbol: asset.symbol },
-        periods: PERIODS.map(period => period.interval),
-        visiblePeriods: focus === 'all' ? PERIODS.map(period => period.interval) : [focus],
-        journal: cuts,
-        screenshot: null,
-        limitations: 'Los dibujos y las velas de TradingView no están disponibles mediante el widget. Adjuntar captura PNG separada, tomada y revisada por el usuario. No contiene precios OHLCV.'
-      };
-      saveFile(new Blob([JSON.stringify(evidence, null, 2)], { type: 'application/json' }), `graficosxrp-evidencia-${filenameTag()}.json`);
-      setMessage('Evidencia JSON descargada. Adjuntá también el PNG para que Cloe pueda evaluar los dibujos.');
+      const tag = filenameTag();
+      const evidence = await buildEvidence(exportInput());
+      saveFile(new Blob([JSON.stringify(evidence, null, 2)], { type: 'application/json' }), `graficosxrp-evidencia-${tag}.json`);
+      setMessage(`JSON descargado. ${exportSummary(evidence)} Adjuntá también la captura.`);
     } catch {
       setMessage('No se pudo exportar la evidencia; los registros originales no se modificaron.');
+    } finally {
+      setExporting(false);
+    }
+  }
+  async function exportPackage() {
+    if (busy) return;
+    setExporting(true);
+    try {
+      const input = exportInput();
+      const tag = filenameTag();
+      // Request screen sharing before any network call, preserving user activation.
+      const { blob, ...screenshot } = await capturePng();
+      setMessage('Captura tomada. Consultando velas de la configuración inicial…');
+      const evidence = await buildEvidence({ ...input, screenshot: { ...screenshot, filename: 'captura.png' } });
+      const bytes = await buildEvidenceZip(evidence, await blob.arrayBuffer());
+      saveFile(new Blob([bytes], { type: 'application/zip' }), `cloe-${tag}.zip`);
+      setMessage(`ZIP descargado con analisis.json y captura.png. ${exportSummary(evidence)} Revisá que la captura corresponda a esta pestaña.`);
+    } catch (error) {
+      setMessage(captureError(error));
+    } finally {
+      setExporting(false);
     }
   }
   function apply(next) {
@@ -114,7 +135,7 @@ function Workspace({ user }) {
       const active = workspace.selected === id;
       return <div key={id} className={`charts-stack${focus !== 'all' ? ' single-chart' : ''}${active ? ' is-active' : ''}`} aria-hidden={!active} inert={!active}>{PERIODS.map(({ interval, label }) => <section className={`chart-panel${focus !== 'all' && focus !== interval ? ' focus-hidden' : ''}`} aria-label={`${id} ${label}`} key={interval}><TradingViewChart containerId={`tradingview_${index}_${interval}`} symbol={asset.symbol} theme="dark" interval={interval} autosize /></section>)}</div>;
     })}</div>
-    <MarketStrip assets={workspace.assets} selected={workspace.selected} onSelect={selectAsset} menu={<WorkspaceMenu email={user.email} onAssets={() => setEditing(true)} onExport={download} onImport={() => fileRef.current?.click()} onLogout={logout} onTools={() => setTools(true)} onCapture={capture} onEvidence={exportEvidence} busy={capturing} focus={focus} onFocus={setFocus} />} />
+    <MarketStrip assets={workspace.assets} selected={workspace.selected} onSelect={selectAsset} menu={<WorkspaceMenu email={user.email} onAssets={() => setEditing(true)} onExport={download} onImport={() => fileRef.current?.click()} onLogout={logout} onTools={() => setTools(true)} onCapture={capture} onEvidence={exportEvidence} onPackage={exportPackage} busy={busy} focus={focus} onFocus={setFocus} />} />
     {tools && <AnalystTools key={workspace.selected} userId={user.id} symbol={resolveAsset(workspace.selected).symbol} onClose={() => setTools(false)} />}
     {editing && <AssetPicker initial={workspace.assets} onCancel={() => setEditing(false)} onApply={assets => apply({ version: 1, assets, selected: assets.includes(workspace.selected) ? workspace.selected : assets[0] })} />}
     <p className="workspace-message" role="status">{message}</p>
