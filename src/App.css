@@ -146,3 +146,5 @@ dialog.asset-picker::backdrop { background:#07090df2; }
 .risk-inputs label { display:grid; gap:.4rem; font-size:.75rem; }
 .risk-output { display:block; padding:1rem; background:#17384a; border-radius:8px; font-size:.8rem; line-height:1.8; }
 @media(max-width:760px) { .market-strip { grid-template-columns:minmax(0,1fr) 90px; padding:.6rem; } .asset-quotes { display:flex; overflow-x:auto; } .asset-quotes .market-quote { min-width:140px; } .empty-quote { display:none; } .workspace-popover { bottom:110px; right:.6rem; } .risk-inputs { grid-template-columns:1fr; } }
+
+.cloe-context-backdrop{position:fixed;inset:0;background:#000b;z-index:1000;display:grid;place-items:center;padding:20px}.cloe-context-dialog{background:#111b2a;color:#e7eefb;border:1px solid #45617e;border-radius:12px;padding:20px;width:min(700px,100%);max-height:90dvh;overflow:auto}.cloe-context-dialog h2{margin-top:0}.cloe-context-dialog textarea{width:100%;min-height:260px;background:#080c14;color:#e7eefb;padding:12px;box-sizing:border-box}.cloe-context-dialog button{margin:12px 12px 0 0;padding:10px;cursor:pointer}

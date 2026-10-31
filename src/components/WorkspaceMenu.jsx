@@ -1,4 +1,4 @@
-export default function WorkspaceMenu({ email, onAssets, onExport, onImport, onCapture, onEvidence, onLogout, onTools, focus, onFocus, busy }) {
+export default function WorkspaceMenu({ email, onAssets, onExport, onImport, onCapture, onPrepare, onEvidence, onLogout, onTools, focus, onFocus, busy }) {
   function action(event, fn) {
     event.currentTarget.closest('[popover]')?.hidePopover();
     fn();
@@ -8,6 +8,7 @@ export default function WorkspaceMenu({ email, onAssets, onExport, onImport, onC
     <div id="workspace-menu" popover="auto" className="workspace-popover" aria-label="Menú del espacio">
       <div className="menu-identity"><strong>GRÁFICOS XRP</strong><small>{email}</small></div>
       <p className="menu-section-label">CAPTURA Y EVIDENCIA</p>
+      <button disabled={busy} onClick={e=>action(e,onPrepare)}>✨ Preparar análisis para Cloe <small>Descarga PNG y prepara el contexto para pegar en el chat</small></button>
       <button disabled={busy} onClick={e=>action(e,onCapture)}>📷 Capturar gráficos <small>Elegí esta pestaña en el diálogo del navegador; descarga PNG con anotaciones visibles</small></button>
       <button onClick={e=>action(e,onEvidence)}>📦 Exportar evidencia <small>JSON del activo, temporalidades, cuaderno y referencias; no contiene los dibujos internos</small></button>
       <p className="menu-section-label">ANÁLISIS</p>

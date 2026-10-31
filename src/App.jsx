@@ -5,6 +5,7 @@ import TradingViewChart from './components/TradingViewChart';
 import AnalystTools from './components/AnalystTools';
 import WorkspaceMenu from './components/WorkspaceMenu';
 import Login from './components/Login';
+import { captureContext } from './lib/capture-context';
 import AssetPicker from './components/AssetPicker';
 import { auth } from './lib/auth';
 import { readJournal } from './lib/analyst-tools';
@@ -19,6 +20,7 @@ function Workspace({ user }) {
   const [message, setMessage] = useState('');
   const fileRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
+  const [analysisContext, setAnalysisContext] = useState('');
   function saveFile(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -28,7 +30,7 @@ function Workspace({ user }) {
   function filenameTag() {
     return `${workspace.selected.replace(/[^a-zA-Z0-9_-]/g, '-')}-${new Date().toISOString().replace(/[:.]/g, '-')}`;
   }
-  async function capture() {
+  async function capture(prepare = false) {
     if (!navigator.mediaDevices?.getDisplayMedia) {
       setMessage('Este navegador no permite capturar pestañas. Usá la captura del sistema y adjuntala en el chat.');
       return;
@@ -43,12 +45,19 @@ function Workspace({ user }) {
       video.srcObject = stream;
       await video.play();
       if (!video.videoWidth || !video.videoHeight) throw new Error('No se recibió una imagen válida.');
+      const capturedAt = new Date();
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth; canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('No se pudo generar el PNG.');
-      saveFile(blob, `graficosxrp-${filenameTag()}.png`);
+      const filename = `graficosxrp-${workspace.selected.replace(/[^a-zA-Z0-9_-]/g, '-')}-${capturedAt.toISOString().replace(/[:.]/g, '-')}.png`;
+      saveFile(blob, filename);
+      if (prepare) {
+        const text = captureContext({ asset: resolveAsset(workspace.selected), periods: PERIODS, focus, capturedAt, filename });
+        setAnalysisContext(text);
+        try { await navigator.clipboard.writeText(text); } catch { /* Manual copy remains available in the dialog. */ }
+      }
       setMessage('Captura descargada. Comprobá que elegiste esta pestaña y que los dibujos son visibles antes de enviarla a Cloe.');
     } catch (error) {
       setMessage(error?.name === 'NotAllowedError' ? 'Captura cancelada o permiso rechazado; no se guardó ninguna imagen.' : 'No se pudo capturar la pestaña. Probá con la captura del sistema.');
@@ -114,7 +123,12 @@ function Workspace({ user }) {
       const active = workspace.selected === id;
       return <div key={id} className={`charts-stack${focus !== 'all' ? ' single-chart' : ''}${active ? ' is-active' : ''}`} aria-hidden={!active} inert={!active}>{PERIODS.map(({ interval, label }) => <section className={`chart-panel${focus !== 'all' && focus !== interval ? ' focus-hidden' : ''}`} aria-label={`${id} ${label}`} key={interval}><TradingViewChart containerId={`tradingview_${index}_${interval}`} symbol={asset.symbol} theme="dark" interval={interval} autosize /></section>)}</div>;
     })}</div>
-    <MarketStrip assets={workspace.assets} selected={workspace.selected} onSelect={selectAsset} menu={<WorkspaceMenu email={user.email} onAssets={() => setEditing(true)} onExport={download} onImport={() => fileRef.current?.click()} onLogout={logout} onTools={() => setTools(true)} onCapture={capture} onEvidence={exportEvidence} busy={capturing} focus={focus} onFocus={setFocus} />} />
+    <MarketStrip assets={workspace.assets} selected={workspace.selected} onSelect={selectAsset} menu={<WorkspaceMenu email={user.email} onAssets={() => setEditing(true)} onExport={download} onImport={() => fileRef.current?.click()} onLogout={logout} onTools={() => setTools(true)} onCapture={() => capture()} onPrepare={() => capture(true)} onEvidence={exportEvidence} busy={capturing} focus={focus} onFocus={setFocus} />} />
+    {analysisContext && <div className="cloe-context-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="cloe-context-title" className="cloe-context-dialog">
+      <h2 id="cloe-context-title">Listo para Cloe</h2><p>Adjuntá el PNG descargado y pegá este contexto en el chat. Revisá que capturaste la pestaña correcta.</p>
+      <textarea autoFocus readOnly aria-label="Contexto del análisis" value={analysisContext} onFocus={e => e.target.select()} />
+      <div><button onClick={async () => { try { await navigator.clipboard.writeText(analysisContext); setMessage('Contexto copiado.'); } catch { setMessage('Seleccioná y copiá el texto del recuadro.'); } }}>Copiar contexto</button><button onClick={() => setAnalysisContext('')}>Cerrar</button></div>
+    </section></div>}
     {tools && <AnalystTools key={workspace.selected} userId={user.id} symbol={resolveAsset(workspace.selected).symbol} onClose={() => setTools(false)} />}
     {editing && <AssetPicker initial={workspace.assets} onCancel={() => setEditing(false)} onApply={assets => apply({ version: 1, assets, selected: assets.includes(workspace.selected) ? workspace.selected : assets[0] })} />}
     <p className="workspace-message" role="status">{message}</p>
