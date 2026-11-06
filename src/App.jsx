@@ -92,7 +92,7 @@ function Workspace({ user }) {
       const evidence = await buildEvidence({ ...input, screenshot: { ...screenshot, filename: 'captura.png' } });
       const bytes = await buildEvidenceZip(evidence, await blob.arrayBuffer());
       saveFile(new Blob([bytes], { type: 'application/zip' }), `cloe-${tag}.zip`);
-      setMessage(`ZIP descargado con analisis.json y captura.png. ${exportSummary(evidence)} Revisá que la captura corresponda a esta pestaña.`);
+      setMessage(`ZIP descargado con guía LEER PRIMERO, analisis.json y captura.png. ${exportSummary(evidence)} Revisá que la captura corresponda a esta pestaña.`);
     } catch (error) {
       setMessage(captureError(error));
     } finally {

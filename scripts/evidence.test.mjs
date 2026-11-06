@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import JSZip from 'jszip';
 import { buildEvidence, fetchInitialCandles, EVIDENCE_BAR_LIMIT } from '../src/lib/evidence.js';
 import { buildEvidenceZip } from '../src/lib/evidence-zip.js';
+import { CLOE_GUIDE_FILENAME, CLOE_RECEPTION_GUIDE } from '../src/lib/cloe-guide.js';
 
 const start = Date.UTC(2026, 9, 30);
 const day = 86400000;
@@ -114,12 +115,15 @@ test('export freezes initial inputs, fetches all initial intervals and keeps vis
   assert.ok(evidence.limitations.some(text => text.includes('sin reemplazar')));
 });
 
-test('ZIP round trip retains both the JSON and original image bytes', async () => {
+test('ZIP starts with the UTF-8 reception guide and retains JSON and original image bytes', async () => {
   const image = Uint8Array.from([137, 80, 78, 71, 13, 10, 26, 10]);
   const evidence = { id: 'same-export', screenshot: { filename: 'captura.png' }, marketData: [{ status: 'unavailable' }] };
   const bytes = await buildEvidenceZip(evidence, image);
   const zip = await JSZip.loadAsync(bytes);
-  assert.deepEqual(Object.keys(zip.files).sort(), ['analisis.json', 'captura.png']);
+  assert.deepEqual(Object.keys(zip.files), [CLOE_GUIDE_FILENAME, 'analisis.json', 'captura.png']);
+  assert.equal(await zip.file(CLOE_GUIDE_FILENAME).async('string'), CLOE_RECEPTION_GUIDE);
+  assert.match(CLOE_RECEPTION_GUIDE, /APRENDER Y OPERAR/);
+  assert.match(CLOE_RECEPTION_GUIDE, /SIN OPERACIÓN/);
   assert.deepEqual(JSON.parse(await zip.file('analisis.json').async('string')), evidence);
   assert.deepEqual(await zip.file('captura.png').async('uint8array'), image);
 });
