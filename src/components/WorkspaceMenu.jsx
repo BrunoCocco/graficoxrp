@@ -8,7 +8,7 @@ export default function WorkspaceMenu({ email, onAssets, onExport, onImport, onC
     <div id="workspace-menu" popover="auto" className="workspace-popover" aria-label="Menú del espacio">
       <div className="menu-identity"><strong>GRÁFICOS XRP</strong><small>{email}</small></div>
       <p className="menu-section-label">CAPTURA Y EVIDENCIA</p>
-      <button disabled={busy} onClick={e=>action(e,onPackage)}>📦 Exportar para Cloe (ZIP) <small>Captura + JSON con velas de la configuración inicial</small></button>
+      <button disabled={busy} onClick={e=>action(e,onPackage)}>📦 Exportar para Cloe (ZIP) <small>Guía de análisis + captura + JSON con velas</small></button>
       <button disabled={busy} onClick={e=>action(e,onCapture)}>📷 Capturar gráficos <small>Elegí esta pestaña en el diálogo del navegador; descarga PNG con anotaciones visibles</small></button>
       <button disabled={busy} onClick={e=>action(e,onEvidence)}>📄 Exportar evidencia JSON <small>Hasta 240 velas por temporalidad inicial, cuaderno y fuentes; los cambios internos del widget no se verifican</small></button>
       <p className="menu-section-label">ANÁLISIS</p>
