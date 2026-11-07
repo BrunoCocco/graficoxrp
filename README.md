@@ -83,7 +83,7 @@ Validación: 10 pruebas de modelo, validación, riesgo e historial; lint y build
 
 Esta entrega actualiza la exportación de evidencia de la cuarta entrega:
 
-- **Exportar para Cloe (ZIP)** reúne `analisis.json` y `captura.png`. Se comprime el JSON y se conserva el PNG original. Siguen disponibles la captura PNG y la evidencia JSON independientes, también cuando el dispositivo no permite capturar pestañas.
+- **Exportar para Cloe (ZIP)** reúne `00_LEEME_PRIMERO_CLOE.md`, `analisis.json` y `captura.png`. El instructivo versionado se incluye automáticamente desde `src/lib/cloe-instructions.js`, sin consultas externas. Se comprime el JSON y se conserva el PNG original. Siguen disponibles la captura PNG y la evidencia JSON independientes, también cuando el dispositivo no permite capturar pestañas.
 - El JSON versión 2 conserva el símbolo y los tres marcos **iniciales** del activo seleccionado (`W`, `D`, `240`), aunque el usuario cambie la temporalidad o el símbolo dentro del widget. `configurationBasis` y `widgetStateVerified: false` hacen explícita esta regla; no se intenta leer ni restringir esos cambios internos.
 - Se solicitan hasta **240 barras por temporalidad inicial**, incluyendo la barra en formación, a las APIs públicas spot de Binance o Kraken. Binance utiliza su endpoint oficial de datos públicos `data-api.binance.vision`. Cada serie registra consulta, fuente, símbolo del proveedor, cobertura, huecos, unidad de volumen, OHLCV, apertura y fin exclusivo en UTC y si la barra está cerrada al recuperarla. Los decimales se conservan como cadenas.
 - No se sustituyen exchanges, spot por futuros ni USD por USDT. Un símbolo no compatible, un rechazo, un error de red o una respuesta inválida queda como `unavailable` con explicación y sin barras inventadas; las demás series y el cuaderno se exportan igualmente. Las consultas tienen un límite de 15 segundos y se realizan sin credenciales.
@@ -95,3 +95,9 @@ Esta entrega actualiza la exportación de evidencia de la cuarta entrega:
 Fuentes de implementación: [Binance Market Data Only](https://github.com/binance/binance-spot-api-docs/blob/master/faqs/market_data_only.md), [Binance klines](https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints) y [Kraken OHLC](https://docs.kraken.com/api-reference/market-data/get-ohlc-data).
 
 Verificación: pruebas de formatos Binance/Kraken, errores, aislamiento del lote, barras abiertas/cerradas, huecos, ZIP y cierre de las pistas de captura con navegador simulado. La selección real de pestaña y la captura en móvil requieren comprobarse en el navegador del usuario.
+
+## Instructivo de recepción Cloe · 07/11/2026
+
+El documento LEER PRIMERO incorpora el procedimiento aprobado del 31/10 y los acuerdos posteriores: informe modular Técnico/Fundamental/Fechas, recuperación de semilla y bibliografía Skypass, explicación de autores aplicada al gráfico y conservación del histórico. La revisión solo técnica por defecto de v0.1 queda reemplazada por el informe integral; el Técnico mantiene su independencia. El exportador no ejecuta ese análisis, no consulta macro ni libros y no actualiza automáticamente el dashboard.
+
+La prueba del ZIP verifica sus tres entradas, texto UTF-8, integridad de JSON/PNG y compatibilidad con el lote recibido. La captura real mediante el selector del navegador requiere una prueba en el dispositivo del usuario.
